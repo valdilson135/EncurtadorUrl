@@ -1,0 +1,50 @@
+version: '3.4'
+
+services:
+  encurtadorurlmottu:
+    image: ${DOCKER_REGISTRY-}encurtadorurlmottu
+    build:
+      context: .
+      dockerfile: EncurtadorUrl/Dockerfile
+    ports:
+     - "8081:80"
+    networks:
+     - mottu
+
+  postgres:
+    image: postgres:14.1-alpine
+    container_name: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root
+    ports:
+      - '5432:5432'
+    volumes: 
+      - db:/var/lib/postgresql/data
+    networks:
+        - mottu
+
+
+  rabbitmq:
+        container_name: "rabbitmq-service"
+        image: masstransit/rabbitmq:latest
+        environment:
+            - RABBITMQ_DEFAULT_USER=guest
+            - RABBITMQ_DEFAULT_PASS=guest
+        ports:
+            # AMQP protocol port
+            - '5672:5672'
+            # HTTP management UI
+            - '15672:15672'
+        networks:
+            - mottu
+
+networks:
+  mottu:   
+   driver: bridge
+  
+
+volumes:
+ db:
+  driver: local
