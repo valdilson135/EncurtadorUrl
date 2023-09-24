@@ -4,10 +4,10 @@
       "commandName": "DockerCompose",
       "commandVersion": "1.0",
       "composeLaunchAction": "LaunchBrowser",
-      "composeLaunchServiceName": "encurtadorurlmottu",
+      "composeLaunchServiceName": "encurtadorurl",
       "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}/swagger",
       "serviceActions": {
-        "encurtadorurlmottu": "StartDebugging",
+        "encurtadorurl": "StartDebugging",
         "postgres": "StartWithoutDebugging",
         "rabbitmq": "StartWithoutDebugging"
       }

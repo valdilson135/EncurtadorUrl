@@ -5,6 +5,7 @@ namespace EncurtadorUrl.Dtos
     public class UrlCreateDto
     {     
         [Required]
-        public string Url { get; set; }   
+        public string Url { get; private set; }   
+
     }
 }

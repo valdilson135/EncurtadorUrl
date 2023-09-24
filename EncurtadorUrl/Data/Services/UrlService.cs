@@ -1,10 +1,9 @@
-﻿using EncurtadorUrl.Dtos;
+﻿using AutoMapper;
+using EncurtadorUrl.Dtos;
 using EncurtadorUrl.Interfaces;
 using EncurtadorUrl.Models;
 using EncurtadorUrl.Models.Validations;
-using NanoidDotNet;
 using Newtonsoft.Json;
-using System;
 
 namespace EncurtadorUrl.Data.Services
 {
@@ -12,35 +11,46 @@ namespace EncurtadorUrl.Data.Services
     {
         private readonly IUrlRepository _urlRepository;
         private IRabbitMqClient _rabbitMqClient;
+        private readonly IMapper _map;
+        private readonly IUrlShortService _urlShortService;
+
         public UrlService(IUrlRepository urlRepository, IRabbitMqClient rabbitMqClient,
-                              INotificador notificador) : base(notificador)
+            IUrlShortService urlShortService, IMapper map, INotificador notificador) : base(notificador)
         {
             _urlRepository = urlRepository;
             _rabbitMqClient = rabbitMqClient;
+            _map = map;
+            _urlShortService = urlShortService;
         }
 
-        public async Task<bool> CreateUrl(UrlModel url)
+        public async Task<bool> CreateUrl(UrlCreateDto url)
         {
             if (!ExecutarValidacao(new UrlValidation(), url)) return false;
 
-            var ret = await _urlRepository.GetUrlByUrl(url);
-            if (ret != null)
+            var newUrl = new UrlModel(url.Url);
+
+            var urlShort = _urlShortService.SetUrlShort();
+            newUrl.SetShortUrl(urlShort);
+
+            var existUrl = await _urlRepository.GetUrlByUrl(newUrl);
+            if (existUrl != null)
             {
                 Notificar("Já existe uma Url com este endereço infomado.");
                 return false;
             }
             //Adiciona a Url Encurtada            
-            await _urlRepository.CreateUrl(url);
+            var urlReturn = await _urlRepository.CreateUrl(newUrl);
 
-            _rabbitMqClient.PublicUrl(url);
+            _rabbitMqClient.PublicUrl(urlReturn);
 
             return true;
         }
 
-        public async Task<bool> UpdateUrl(UrlModel url)
+        public async Task<bool> UpdateUrl(UrlUpdateDto url)
         {
-            if (!ExecutarValidacao(new UrlValidation(), url)) return false;
-            UrlModel urlUpd = await _urlRepository.GetUrlById(url.Id);
+            if (!ExecutarValidacao(new UrlUpValidation(), url)) return false;
+
+            var urlUpd = await _urlRepository.GetUrlById(url.Id);
 
             if (urlUpd.Id <= 0)
             {
@@ -54,47 +64,81 @@ namespace EncurtadorUrl.Data.Services
             return true;
         }
 
-        public async Task<IEnumerable<UrlModel>> GetAllUrls()
+        public async Task<UrlDto> ValidateUrl(UrlReadDto shortUrl)
         {
-            return await _urlRepository.GetAllUrls();
+            var urlGet = await _urlRepository.GetUrlByShortUrl(_map.Map<UrlModel>(shortUrl));
+            if (urlGet.Id <= 0)
+            {
+                Notificar("Id informado não existe.");
+                return _map.Map<UrlDto>(urlGet);
+            }
+
+            urlGet.SetHints(1);
+
+            var returnUrl = await _urlRepository.UpdateUrl(urlGet);
+
+            return _map.Map<UrlDto>(returnUrl);
         }
 
-        public async Task<UrlModel> GetUrlById(int id)
+        public async Task<IEnumerable<UrlDto>> GetAllUrls()
         {
-            return await _urlRepository.GetUrlById(id);
+            var urlReturn = await _urlRepository.GetAllUrls();
+
+            return _map.Map<IEnumerable<UrlDto>>(urlReturn);
         }
 
-        public async Task<UrlModel> GetUrlByUrl(UrlModel url)
+        public async Task<UrlDto> GetUrlById(int id)
         {
-            return await _urlRepository.GetUrlByUrl(url);
+            var urlReturn = await _urlRepository.GetUrlById(id);
+
+            return _map.Map<UrlDto>(urlReturn);
         }
 
-        public async Task<UrlModel> GetUrlByShortUrl(UrlModel url)
+        public async Task<UrlDto> GetUrlByUrl(UrlDto url)
         {
-            return await _urlRepository.GetUrlByShortUrl(url);
+            var urlReturn = await _urlRepository.GetUrlByUrl(_map.Map<UrlModel>(url));
+
+            return _map.Map<UrlDto>(urlReturn);
         }
-        public async Task DeleteUrl(UrlModel url)
+
+        public async Task<UrlDto> GetUrlByShortUrl(UrlDto url)
         {
-            await _urlRepository.DeleteUrl(url);
+            var urlReturn = await _urlRepository.GetUrlByShortUrl(_map.Map<UrlModel>(url));
+            return _map.Map<UrlDto>(urlReturn);
+        }
+        public async Task<UrlDto> DeleteUrl(int id)
+        {
+            var urlDelet = await _urlRepository.GetUrlById(id);
+            if (urlDelet == null)
+            {
+                Notificar("Id informado não existe.");
+                return _map.Map<UrlDto>(urlDelet);
+            }
+
+            var urlReturn = await _urlRepository.DeleteUrl(urlDelet);
+
+            return _map.Map<UrlDto>(urlReturn);
         }
 
         public async Task<bool> ProcessFile(FileUploadDto model)
         {
             try
-            {               
+            {
                 using (var reader = new StreamReader(model.File.OpenReadStream()))
                 {
                     var fileContent = await reader.ReadToEndAsync();
 
-                    List<UrlModel> listUrl = JsonConvert.DeserializeObject<List<UrlModel>>(fileContent);
+                    List<UrlDto> listUrl = JsonConvert.DeserializeObject<List<UrlDto>>(fileContent);
 
                     foreach (var item in listUrl)
                     {
-                        var existUrl = await _urlRepository.GetUrlByShortUrl(item);
+                        var existUrl = await _urlRepository.GetUrlByShortUrl(_map.Map<UrlModel>(item));
                         if (existUrl == null)
                         {
-                            item.Id = 0;
-                            await _urlRepository.CreateUrl(item);
+                            var newUrl = new UrlModel(item.Url);
+                            newUrl.SetShortUrl(item.ShortUrl);
+                            newUrl.SetHints(item.Hits);
+                            await _urlRepository.CreateUrl(newUrl);
                         }
                         else { Notificar($"Url existenta na base de Dados. UrlPrincipal({item.Url}), UrlEncurtada({item.ShortUrl}) "); }
                     }
@@ -102,10 +146,39 @@ namespace EncurtadorUrl.Data.Services
             }
             catch (Exception ex)
             {
-                Notificar($"Erro ao tentar processar arquivo de dados. ex.Message({ ex.Message}), ex.StackTrace({ex.StackTrace}) ");
+                Notificar($"Erro ao tentar processar arquivo de dados. ex.Message({ex.Message}), ex.StackTrace({ex.StackTrace}) ");
                 return false;
             }
             return true;
+        }
+
+        public async Task<List<UrlModel>> ProcessFile(string filePath)
+        {
+            var listUrl = new List<UrlModel>();
+            try
+            {
+                var contentFile = File.ReadAllText(filePath);
+                var dadosFile = JsonConvert.DeserializeObject<List<UrlDto>>(contentFile);
+                
+                foreach (var item in dadosFile)
+                {
+                    var existUrl = await _urlRepository.GetUrlByShortUrl(_map.Map<UrlModel>(item));
+                    if (existUrl == null)
+                    {
+                        var newUrl = new UrlModel(item.Url);
+                        newUrl.SetShortUrl(item.ShortUrl);
+                        newUrl.SetHints(item.Hits);
+                        listUrl.Add(newUrl);    
+                    }
+                    else { Notificar($"Url existenta na base de Dados. UrlPrincipal({item.Url}), UrlEncurtada({item.ShortUrl}) "); }
+                }
+            }
+            catch (Exception ex)
+            {
+                Notificar($"Erro ao tentar processar arquivo de dados. ex.Message({ex.Message}), ex.StackTrace({ex.StackTrace}) ");
+                return listUrl;
+            }
+            return listUrl;
         }
     }
 }

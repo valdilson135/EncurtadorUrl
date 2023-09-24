@@ -34,7 +34,7 @@ Bem-vindo à documentação da aplicação de encurtamento de URLs. Esta aplica�
 3. **Executando a Aplicação:**
    - Abra o projeto no Visual Studio 2022.
    - Configure as strings de conexão no arquivo `appsettings.json`.
-   - Abrir o cmd e executar o comando a seguir `docker network create mottu`.
+   - Abrir o cmd e executar o comando a seguir `docker network create encurl`.
    - Execute a aplicação.
 
 ## Uso

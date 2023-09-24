@@ -6,7 +6,7 @@
     <ProjectGuid>3a5ead1a-a7cc-4296-a03d-b591a10469ff</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/swagger</DockerServiceUrl>
-    <DockerServiceName>encurtadorurlmottu</DockerServiceName>
+    <DockerServiceName>encurtadorurl</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
     <None Include="docker-compose.override.yml">

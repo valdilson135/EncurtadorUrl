@@ -5,11 +5,22 @@ namespace EncurtadorUrl.Models
 {
     public class UrlModel
     {
+        public UrlModel(string url)
+        {
+            Url = url;
+        }
         public int Id { get; set; }
-        public int Hits { get; set; }
+        public int Hits { get; private set; }
 
-        [Required]
         public string Url { get; set; }
-        public string ShortUrl { get; set; }
+        public string ShortUrl { get;  private set; }
+
+        public void SetHints(int hints)
+        {  Hits += hints; }
+
+        public void SetShortUrl(string shortUrl)
+        {
+            ShortUrl = shortUrl.ToLower();
+        }
     }
 }

@@ -9,8 +9,8 @@ namespace EncurtadorUrl.Interfaces
         Task<UrlModel> GetUrlById(int id);
         Task<UrlModel> GetUrlByUrl(UrlModel url);
         Task<UrlModel> GetUrlByShortUrl(UrlModel url);
-        Task CreateUrl(UrlModel url);
-        Task UpdateUrl(UrlModel url);
-        Task DeleteUrl(UrlModel url);
+        Task<UrlModel> CreateUrl(UrlModel url);
+        Task<UrlModel> UpdateUrl(UrlModel url);
+        Task<UrlModel> DeleteUrl(UrlModel url);
     }
 }

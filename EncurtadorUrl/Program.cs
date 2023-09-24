@@ -1,6 +1,7 @@
 using EncurtadorUrl.Data.Common;
 using EncurtadorUrl.Data.Repository;
 using EncurtadorUrl.Data.Services;
+using EncurtadorUrl.Dtos;
 using EncurtadorUrl.Interfaces;
 using EncurtadorUrl.Models;
 using EncurtadorUrl.Notificacoes;
@@ -51,23 +52,17 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.EnsureDeleted();
     db.Database.EnsureCreated();
+    var service = scope.ServiceProvider.GetRequiredService<IUrlService>();
+    var quewe = scope.ServiceProvider.GetRequiredService<IRabbitMqClient>();
+    var repo = scope.ServiceProvider.GetRequiredService<IUrlRepository>();
 
-    if(File.Exists(filePath))
+    if (File.Exists(filePath))
     {
-        var contentFile = File.ReadAllText(filePath);
-        var dadosFile = JsonConvert.DeserializeObject<List<UrlModel>>(contentFile);
-        var service = new UrlRepository(db);
-        var fila = new RabbitMqClient(builder.Configuration);
-
-        foreach (var item in dadosFile)
+       var listUrls = await  service.ProcessFile(filePath);   
+        foreach (var url in listUrls)
         {
-            var ret = await service.GetUrlByShortUrl(item);
-            if (ret == null)
-            {
-                item.Id = 0;
-                await service.CreateUrl(item);
-                fila.PublicUrl(item);
-            }
+            repo.CreateUrl(url);
+            quewe.PublicUrl(url);
         }
     }
     

@@ -11,10 +11,11 @@ namespace EncurtadorUrl.Data.Repository
         public UrlRepository(AppDbContext dbContext) : base(dbContext)
         {
         }
-        public async Task CreateUrl(UrlModel url)
+        public async Task<UrlModel> CreateUrl(UrlModel url)
         {
               DbContext.Urls.Add(url);
-                await SaveChanges();         
+                await SaveChanges();    
+            return url;
         }
 
         public async Task<IEnumerable<UrlModel>> GetAllUrls()
@@ -40,16 +41,18 @@ namespace EncurtadorUrl.Data.Repository
             return await DbContext.SaveChangesAsync();
         }
 
-        public async Task UpdateUrl(UrlModel url)
+        public async Task<UrlModel> UpdateUrl(UrlModel url)
         {
             DbContext.Urls.Update(url);
             await SaveChanges();
+            return url;
         }
 
-        public async Task DeleteUrl(UrlModel url)
+        public async Task<UrlModel> DeleteUrl(UrlModel url)
         {
             DbContext.Urls.Remove(url);
             await SaveChanges();
+                return url;
         }        
     }
 }

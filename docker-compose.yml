@@ -1,15 +1,15 @@
 version: '3.4'
 
 services:
-  encurtadorurlmottu:
-    image: ${DOCKER_REGISTRY-}encurtadorurlmottu
+  encurtadorurl:
+    image: ${DOCKER_REGISTRY-}encurtadorurl
     build:
       context: .
       dockerfile: EncurtadorUrl/Dockerfile
     ports:
      - "8081:80"
     networks:
-     - mottu
+     - encurl
 
   postgres:
     image: postgres:14.1-alpine
@@ -23,7 +23,7 @@ services:
     volumes: 
       - db:/var/lib/postgresql/data
     networks:
-        - mottu
+        - encurl
 
 
   rabbitmq:
@@ -38,10 +38,10 @@ services:
             # HTTP management UI
             - '15672:15672'
         networks:
-            - mottu
+            - encurl
 
 networks:
-  mottu:   
+  encurl:   
    driver: bridge
   
 

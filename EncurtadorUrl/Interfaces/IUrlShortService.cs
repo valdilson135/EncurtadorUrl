@@ -4,6 +4,6 @@ namespace EncurtadorUrl.Interfaces
 {
     public interface IUrlShortService
     {
-        string SetUrlShort(UrlCreateDto url);
+        string SetUrlShort();
     }
 }

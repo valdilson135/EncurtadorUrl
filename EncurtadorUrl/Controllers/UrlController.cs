@@ -15,13 +15,12 @@ namespace EncurtadorUrl.Controllers
     {
         private readonly IUrlService _urlService;
         private readonly IMapper _mapper;
-        private readonly IUrlShortService _urlShortService;
+
         public UrlController(INotificador notificador, IUrlService urlService,
-            IMapper mapper, IUrlShortService urlShortService) : base(notificador)
+            IMapper mapper ) : base(notificador)
         {
             _urlService = urlService;
-            _mapper = mapper;
-            _urlShortService = urlShortService;
+            _mapper = mapper;            
         }
 
         [HttpGet]
@@ -48,14 +47,11 @@ namespace EncurtadorUrl.Controllers
             if (!Uri.TryCreate(url.Url, UriKind.Absolute, out var urlValida))
             {
                 return CustomResponse("Url inválida.");
-            }
-            
-            var urlNew = _mapper.Map<UrlModel>(url);
-            urlNew.ShortUrl = _urlShortService.SetUrlShort(url);
+            }           
 
-            await _urlService.CreateUrl(urlNew);
+            var retUrl =  await _urlService.CreateUrl(url);
 
-            return CustomResponse(urlNew);
+            return CustomResponse(retUrl);
         }
 
         [HttpPut("{id:int}")]
@@ -69,38 +65,28 @@ namespace EncurtadorUrl.Controllers
 
             if (!ModelState.IsValid) return CustomResponse(ModelState);
 
-            await _urlService.UpdateUrl(_mapper.Map<UrlModel>(url));
+            var retUrl = await _urlService.UpdateUrl(url);
 
-            return CustomResponse(url);
+            return CustomResponse(retUrl);
         }
 
         [HttpDelete("{id:int}")]
         public async Task<ActionResult<UrlDto>> DeleteUrl(int id)
         {
-            var url = await _urlService.GetUrlById(id);
-
-            if (url == null) return NotFound();
-
-            await _urlService.DeleteUrl(url);
-
-            return CustomResponse(url);
+            var retUrl = await _urlService.DeleteUrl(id);
+            return CustomResponse(retUrl);
         }
 
         [HttpGet]
         [Route("ValidateShortUrl")]        
-        public async Task<ActionResult<UrlDto>> ValidateShortUrl([FromQuery] string ShortUrl)
+        public async Task<ActionResult<UrlDto>> ValidateShortUrl([FromQuery] string shortUrl)
         {
-            var urlShort = new UrlReadDto();
-            urlShort.ShortUrl = ShortUrl;
+            var urlShortGet = new UrlReadDto();
+            urlShortGet.ShortUrl = shortUrl;
 
-            var url = await _urlService.GetUrlByShortUrl(_mapper.Map<UrlModel>(urlShort));
+            var retUrl = await _urlService.ValidateUrl(urlShortGet);
 
-            if (url == null) return NotFound("Urlencurtada não encontrada!");
-            
-            url.Hits = url.Hits + 1;
-
-            await _urlService.UpdateUrl(url);
-            return CustomResponse(_mapper.Map<UrlDto>(url));
+            return CustomResponse(retUrl);
         }        
 
         [HttpPost]
