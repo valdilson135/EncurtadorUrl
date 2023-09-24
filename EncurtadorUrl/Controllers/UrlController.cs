@@ -14,19 +14,17 @@ namespace EncurtadorUrl.Controllers
     public class UrlController : MainController
     {
         private readonly IUrlService _urlService;
-        private readonly IMapper _mapper;
 
         public UrlController(INotificador notificador, IUrlService urlService,
             IMapper mapper ) : base(notificador)
         {
             _urlService = urlService;
-            _mapper = mapper;            
         }
 
         [HttpGet]
         public async Task<IEnumerable<UrlDto>> GetAllUrls()
         {
-            return _mapper.Map<IEnumerable<UrlDto>>(await _urlService.GetAllUrls());
+            return await _urlService.GetAllUrls();
         }
 
         [HttpGet]
@@ -40,7 +38,7 @@ namespace EncurtadorUrl.Controllers
         }       
 
         [HttpPost]
-        public async Task<ActionResult<UrlDto>> CreateUrl([FromBody] UrlCreateDto url)
+        public async Task<ActionResult> CreateUrl([FromBody] UrlCreateDto url)
         {
             if (!ModelState.IsValid) return CustomResponse(ModelState);
 
@@ -55,7 +53,7 @@ namespace EncurtadorUrl.Controllers
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<UrlDto>> UpdateUrl(int id, [FromBody] UrlUpdateDto url)
+        public async Task<ActionResult> UpdateUrl(int id, [FromBody] UrlUpdateDto url)
         {
             if (id != url.Id)
             {

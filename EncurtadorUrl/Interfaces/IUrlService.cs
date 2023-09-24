@@ -7,8 +7,6 @@ namespace EncurtadorUrl.Interfaces
     {
         Task<IEnumerable<UrlDto>> GetAllUrls();
         Task<UrlDto> GetUrlById(int id);
-        Task<UrlDto> GetUrlByUrl(UrlDto url);
-        Task<UrlDto> GetUrlByShortUrl(UrlDto url);
         Task<bool> CreateUrl(UrlCreateDto url);
         Task<bool> UpdateUrl(UrlUpdateDto url);
         Task<UrlDto> DeleteUrl(int id); 

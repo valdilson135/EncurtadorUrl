@@ -4,6 +4,7 @@ using EncurtadorUrl.Interfaces;
 using EncurtadorUrl.Models;
 using EncurtadorUrl.Models.Validations;
 using Newtonsoft.Json;
+using System;
 
 namespace EncurtadorUrl.Data.Services
 {
@@ -66,8 +67,11 @@ namespace EncurtadorUrl.Data.Services
 
         public async Task<UrlDto> ValidateUrl(UrlReadDto shortUrl)
         {
-            var urlGet = await _urlRepository.GetUrlByShortUrl(_map.Map<UrlModel>(shortUrl));
-            if (urlGet.Id <= 0)
+            var urlValidate = new UrlModel(string.Empty);
+            urlValidate.SetShortUrl(shortUrl.ShortUrl);
+
+            var urlGet = await _urlRepository.GetUrlByShortUrl(urlValidate);
+            if (urlGet == null)
             {
                 Notificar("Id informado não existe.");
                 return _map.Map<UrlDto>(urlGet);
@@ -92,20 +96,8 @@ namespace EncurtadorUrl.Data.Services
             var urlReturn = await _urlRepository.GetUrlById(id);
 
             return _map.Map<UrlDto>(urlReturn);
-        }
-
-        public async Task<UrlDto> GetUrlByUrl(UrlDto url)
-        {
-            var urlReturn = await _urlRepository.GetUrlByUrl(_map.Map<UrlModel>(url));
-
-            return _map.Map<UrlDto>(urlReturn);
-        }
-
-        public async Task<UrlDto> GetUrlByShortUrl(UrlDto url)
-        {
-            var urlReturn = await _urlRepository.GetUrlByShortUrl(_map.Map<UrlModel>(url));
-            return _map.Map<UrlDto>(urlReturn);
-        }
+        }       
+      
         public async Task<UrlDto> DeleteUrl(int id)
         {
             var urlDelet = await _urlRepository.GetUrlById(id);
