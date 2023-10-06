@@ -4,9 +4,8 @@ using EncurtadorUrl.Interfaces;
 using EncurtadorUrl.Models;
 using EncurtadorUrl.Models.Validations;
 using Newtonsoft.Json;
-using System;
 
-namespace EncurtadorUrl.Data.Services
+namespace EncurtadorUrl.Services
 {
     public class UrlService : BaseService, IUrlService
     {
@@ -96,8 +95,8 @@ namespace EncurtadorUrl.Data.Services
             var urlReturn = await _urlRepository.GetUrlById(id);
 
             return _map.Map<UrlDto>(urlReturn);
-        }       
-      
+        }
+
         public async Task<UrlDto> DeleteUrl(int id)
         {
             var urlDelet = await _urlRepository.GetUrlById(id);
@@ -151,7 +150,7 @@ namespace EncurtadorUrl.Data.Services
             {
                 var contentFile = File.ReadAllText(filePath);
                 var dadosFile = JsonConvert.DeserializeObject<List<UrlDto>>(contentFile);
-                
+
                 foreach (var item in dadosFile)
                 {
                     var existUrl = await _urlRepository.GetUrlByShortUrl(_map.Map<UrlModel>(item));
@@ -160,7 +159,7 @@ namespace EncurtadorUrl.Data.Services
                         var newUrl = new UrlModel(item.Url);
                         newUrl.SetShortUrl(item.ShortUrl);
                         newUrl.SetHints(item.Hits);
-                        listUrl.Add(newUrl);    
+                        listUrl.Add(newUrl);
                     }
                     else { Notificar($"Url existenta na base de Dados. UrlPrincipal({item.Url}), UrlEncurtada({item.ShortUrl}) "); }
                 }

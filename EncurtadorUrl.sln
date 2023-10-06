@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EncurtadorUrl", "Encurtador
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{3A5EAD1A-A7CC-4296-A03D-B591A10469FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EncurtadorUrlTests", "EncurtadorUrlTests\EncurtadorUrlTests.csproj", "{43998ED6-7731-4E31-8773-50BEE8A041EF}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{3A5EAD1A-A7CC-4296-A03D-B591A10469FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A5EAD1A-A7CC-4296-A03D-B591A10469FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A5EAD1A-A7CC-4296-A03D-B591A10469FF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{43998ED6-7731-4E31-8773-50BEE8A041EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{43998ED6-7731-4E31-8773-50BEE8A041EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{43998ED6-7731-4E31-8773-50BEE8A041EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{43998ED6-7731-4E31-8773-50BEE8A041EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

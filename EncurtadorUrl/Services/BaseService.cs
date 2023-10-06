@@ -1,10 +1,9 @@
 ﻿using EncurtadorUrl.Interfaces;
-using EncurtadorUrl.Models;
 using EncurtadorUrl.Notificacoes;
 using FluentValidation;
 using FluentValidation.Results;
 
-namespace EncurtadorUrl.Data.Services
+namespace EncurtadorUrl.Services
 {
     public abstract class BaseService
     {

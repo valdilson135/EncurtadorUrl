@@ -1,16 +1,11 @@
 using EncurtadorUrl.Data.Common;
 using EncurtadorUrl.Data.Repository;
-using EncurtadorUrl.Data.Services;
-using EncurtadorUrl.Dtos;
 using EncurtadorUrl.Interfaces;
-using EncurtadorUrl.Models;
 using EncurtadorUrl.Notificacoes;
 using EncurtadorUrl.RabbitMqClient;
+using EncurtadorUrl.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json;
-using System;
-using System.Runtime.CompilerServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
