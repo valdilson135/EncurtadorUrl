@@ -6,13 +6,13 @@ using EncurtadorUrl.Models;
 
 namespace EncurtadorUrl.RabbitMqClient
 {
-    public class RabbitMqClient : IRabbitMqClient
+    public class RabbitMqClients : IRabbitMqClient
     {
         private readonly IConfiguration _configuration;
         private readonly IConnection _connection;
         private readonly IModel _channel;  
 
-        public RabbitMqClient(IConfiguration configuration)
+        public RabbitMqClients(IConfiguration configuration)
         {
             _configuration = configuration;
             _connection = new ConnectionFactory()

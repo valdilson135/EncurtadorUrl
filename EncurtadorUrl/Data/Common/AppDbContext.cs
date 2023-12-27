@@ -1,10 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
+﻿using EncurtadorUrl.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using EncurtadorUrl.Models;
 
 namespace EncurtadorUrl.Data.Common
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext
     {
 
         public DbSet<UrlModel> Urls { get; set; }
